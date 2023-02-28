@@ -6,24 +6,24 @@
  * Time: 9:59 PM
  */
 
-use Darryldecode\Cart\Cart;
+use ScottLsi\Basket\Basket;
 use Mockery as m;
 
 require_once __DIR__.'/helpers/SessionMock.php';
 
-class CartTestOtherFormat extends PHPUnit\Framework\TestCase  {
+class BasketTestOtherFormat extends PHPUnit\Framework\TestCase  {
 
     /**
-     * @var Darryldecode\Cart\Cart
+     * @var ScottLsi\Basket\Basket
      */
-    protected $cart;
+    protected $basket;
 
     public function setUp(): void
     {
         $events = m::mock('Illuminate\Contracts\Events\Dispatcher');
         $events->shouldReceive('dispatch');
 
-        $this->cart = new Cart(
+        $this->basket = new Basket(
             new SessionMock(),
             $events,
             'shopping',
@@ -37,7 +37,7 @@ class CartTestOtherFormat extends PHPUnit\Framework\TestCase  {
         m::close();
     }
 
-    public function test_cart_sub_total()
+    public function test_basket_sub_total()
     {
         $items = array(
             array(
@@ -63,14 +63,14 @@ class CartTestOtherFormat extends PHPUnit\Framework\TestCase  {
             ),
         );
 
-        $this->cart->add($items);
+        $this->basket->add($items);
 
-        $this->assertEquals('187,490', $this->cart->getSubTotal(), 'Cart should have sub total of 187,490');
+        $this->assertEquals('187,490', $this->basket->getSubTotal(), 'Basket should have sub total of 187,490');
 
         // if we remove an item, the sub total should be updated as well
-        $this->cart->remove(456);
+        $this->basket->remove(456);
 
-        $this->assertEquals('119,500', $this->cart->getSubTotal(), 'Cart should have sub total of 119,500');
+        $this->assertEquals('119,500', $this->basket->getSubTotal(), 'Basket should have sub total of 119,500');
     }
 
     public function test_sub_total_when_item_quantity_is_updated()
@@ -92,14 +92,14 @@ class CartTestOtherFormat extends PHPUnit\Framework\TestCase  {
             ),
         );
 
-        $this->cart->add($items);
+        $this->basket->add($items);
 
-        $this->assertEquals('273,220', $this->cart->getSubTotal(), 'Cart should have sub total of 273.22');
+        $this->assertEquals('273,220', $this->basket->getSubTotal(), 'Basket should have sub total of 273.22');
 
-        // when cart's item quantity is updated, the subtotal should be updated as well
-        $this->cart->update(456, array('quantity' => 2));
+        // when basket's item quantity is updated, the subtotal should be updated as well
+        $this->basket->update(456, array('quantity' => 2));
 
-        $this->assertEquals('409,200', $this->cart->getSubTotal(), 'Cart should have sub total of 409.2');
+        $this->assertEquals('409,200', $this->basket->getSubTotal(), 'Basket should have sub total of 409.2');
     }
 
     public function test_sub_total_when_item_quantity_is_updated_by_reduced()
@@ -121,17 +121,17 @@ class CartTestOtherFormat extends PHPUnit\Framework\TestCase  {
             ),
         );
 
-        $this->cart->add($items);
+        $this->basket->add($items);
 
-        $this->assertEquals('273,220', $this->cart->getSubTotal(), 'Cart should have sub total of 273.22');
+        $this->assertEquals('273,220', $this->basket->getSubTotal(), 'Basket should have sub total of 273.22');
 
-        // when cart's item quantity is updated, the subtotal should be updated as well
-        $this->cart->update(456, array('quantity' => -1));
+        // when basket's item quantity is updated, the subtotal should be updated as well
+        $this->basket->update(456, array('quantity' => -1));
 
         // get the item to be evaluated
-        $item = $this->cart->get(456);
+        $item = $this->basket->get(456);
 
         $this->assertEquals(2, $item['quantity'], 'Item quantity of with item ID of 456 should now be reduced to 2');
-        $this->assertEquals('205,230', $this->cart->getSubTotal(), 'Cart should have sub total of 205.23');
+        $this->assertEquals('205,230', $this->basket->getSubTotal(), 'Basket should have sub total of 205.23');
     }
 }

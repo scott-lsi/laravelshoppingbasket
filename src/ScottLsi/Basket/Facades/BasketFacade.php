@@ -1,11 +1,11 @@
-<?php namespace Darryldecode\Cart\Facades;
+<?php namespace ScottLsi\Basket\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
-class CartFacade extends Facade {
+class BasketFacade extends Facade {
 
     protected static function getFacadeAccessor()
     {
-        return 'cart';
+        return 'basket';
     }
 }

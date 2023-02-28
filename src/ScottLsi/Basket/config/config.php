@@ -6,7 +6,7 @@ return [
      * formatting
      * ---------------------------------------------------------------
      *
-     * the formatting of shopping cart values
+     * the formatting of shopping basket values
      */
     'format_numbers' => env('SHOPPING_FORMAT_VALUES', false),
 
@@ -21,7 +21,7 @@ return [
      * persistence
      * ---------------------------------------------------------------
      *
-     * the configuration for persisting cart
+     * the configuration for persisting basket
      */
     'storage' => null,
 
@@ -30,7 +30,7 @@ return [
      * events
      * ---------------------------------------------------------------
      *
-     * the configuration for cart events
+     * the configuration for basket events
      */
     'events' => null,
 ];

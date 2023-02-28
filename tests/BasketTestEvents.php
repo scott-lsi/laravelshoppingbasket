@@ -6,12 +6,12 @@
  * Time: 3:20 PM
  */
 
-use Darryldecode\Cart\Cart;
+use ScottLsi\Basket\Basket;
 use Mockery as m;
 
 require_once __DIR__.'/helpers/SessionMock.php';
 
-class CartTestEvents extends PHPUnit\Framework\TestCase {
+class BasketTestEvents extends PHPUnit\Framework\TestCase {
 
     const CART_INSTANCE_NAME = 'shopping';
 
@@ -24,12 +24,12 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
         m::close();
     }
 
-    public function test_event_cart_created()
+    public function test_event_basket_created()
     {
         $events = m::mock('Illuminate\Contracts\Events\Dispatcher');
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.created', m::type('array'), true);
 
-        $cart = new Cart(
+        $basket = new Basket(
             new SessionMock(),
             $events,
             self::CART_INSTANCE_NAME,
@@ -40,14 +40,14 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
         $this->assertTrue(true);
     }
 
-    public function test_event_cart_adding()
+    public function test_event_basket_adding()
     {
         $events = m::mock('Illuminate\Events\Dispatcher');
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.created', m::type('array'), true);
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.adding', m::type('array'), true);
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.added', m::type('array'), true);
 
-        $cart = new Cart(
+        $basket = new Basket(
             new SessionMock(),
             $events,
             self::CART_INSTANCE_NAME,
@@ -55,19 +55,19 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             require(__DIR__.'/helpers/configMock.php')
         );
 
-        $cart->add(455, 'Sample Item', 100.99, 2, array());
+        $basket->add(455, 'Sample Item', 100.99, 2, array());
 
         $this->assertTrue(true);
     }
 
-    public function test_event_cart_adding_multiple_times()
+    public function test_event_basket_adding_multiple_times()
     {
         $events = m::mock('Illuminate\Events\Dispatcher');
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.created', m::type('array'), true);
         $events->shouldReceive('dispatch')->times(2)->with(self::CART_INSTANCE_NAME.'.adding', m::type('array'), true);
         $events->shouldReceive('dispatch')->times(2)->with(self::CART_INSTANCE_NAME.'.added', m::type('array'), true);
 
-        $cart = new Cart(
+        $basket = new Basket(
             new SessionMock(),
             $events,
             self::CART_INSTANCE_NAME,
@@ -75,13 +75,13 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             require(__DIR__.'/helpers/configMock.php')
         );
 
-        $cart->add(455, 'Sample Item 1', 100.99, 2, array());
-        $cart->add(562, 'Sample Item 2', 100.99, 2, array());
+        $basket->add(455, 'Sample Item 1', 100.99, 2, array());
+        $basket->add(562, 'Sample Item 2', 100.99, 2, array());
 
         $this->assertTrue(true);
     }
 
-    public function test_event_cart_adding_multiple_times_scenario_two()
+    public function test_event_basket_adding_multiple_times_scenario_two()
     {
         $events = m::mock('Illuminate\Events\Dispatcher');
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.created', m::type('array'), true);
@@ -112,7 +112,7 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             ),
         );
 
-        $cart = new Cart(
+        $basket = new Basket(
             new SessionMock(),
             $events,
             self::CART_INSTANCE_NAME,
@@ -120,12 +120,12 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             require(__DIR__.'/helpers/configMock.php')
         );
 
-        $cart->add($items);
+        $basket->add($items);
 
         $this->assertTrue(true);
     }
 
-    public function test_event_cart_remove_item()
+    public function test_event_basket_remove_item()
     {
         $events = m::mock('Illuminate\Events\Dispatcher');
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.created', m::type('array'), true);
@@ -158,7 +158,7 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             ),
         );
 
-        $cart = new Cart(
+        $basket = new Basket(
             new SessionMock(),
             $events,
             self::CART_INSTANCE_NAME,
@@ -166,14 +166,14 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             require(__DIR__.'/helpers/configMock.php')
         );
 
-        $cart->add($items);
+        $basket->add($items);
 
-        $cart->remove(456);
+        $basket->remove(456);
 
         $this->assertTrue(true);
     }
 
-    public function test_event_cart_clear()
+    public function test_event_basket_clear()
     {
         $events = m::mock('Illuminate\Events\Dispatcher');
         $events->shouldReceive('dispatch')->once()->with(self::CART_INSTANCE_NAME.'.created', m::type('array'), true);
@@ -206,7 +206,7 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             ),
         );
 
-        $cart = new Cart(
+        $basket = new Basket(
             new SessionMock(),
             $events,
             self::CART_INSTANCE_NAME,
@@ -214,9 +214,9 @@ class CartTestEvents extends PHPUnit\Framework\TestCase {
             require(__DIR__.'/helpers/configMock.php')
         );
 
-        $cart->add($items);
+        $basket->add($items);
 
-        $cart->clear();
+        $basket->clear();
 
         $this->assertTrue(true);
     }

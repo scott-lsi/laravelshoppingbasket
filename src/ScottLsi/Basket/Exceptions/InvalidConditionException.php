@@ -1,4 +1,4 @@
-<?php namespace Darryldecode\Cart\Exceptions;
+<?php namespace ScottLsi\Basket\Exceptions;
 
 /**
  * Created by PhpStorm.

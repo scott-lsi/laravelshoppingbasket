@@ -1,16 +1,16 @@
-<?php namespace Darryldecode\Cart;
+<?php namespace ScottLsi\Basket;
 
-use Darryldecode\Cart\Exceptions\InvalidConditionException;
-use Darryldecode\Cart\Exceptions\InvalidItemException;
-use Darryldecode\Cart\Helpers\Helpers;
-use Darryldecode\Cart\Validators\CartItemValidator;
-use Darryldecode\Cart\Exceptions\UnknownModelException;
+use ScottLsi\Basket\Exceptions\InvalidConditionException;
+use ScottLsi\Basket\Exceptions\InvalidItemException;
+use ScottLsi\Basket\Helpers\Helpers;
+use ScottLsi\Basket\Validators\BasketItemValidator;
+use ScottLsi\Basket\Exceptions\UnknownModelException;
 
 /**
- * Class Cart
- * @package Darryldecode\Cart
+ * Class Basket
+ * @package ScottLsi\Basket
  */
-class Cart
+class Basket
 {
 
     /**
@@ -28,32 +28,32 @@ class Cart
     protected $events;
 
     /**
-     * the cart session key
+     * the basket session key
      *
      * @var
      */
     protected $instanceName;
 
     /**
-     * the session key use for the cart
+     * the session key use for the basket
      *
      * @var
      */
     protected $sessionKey;
 
     /**
-     * the session key use to persist cart items
+     * the session key use to persist basket items
      *
      * @var
      */
-    protected $sessionKeyCartItems;
+    protected $sessionKeyBasketItems;
 
     /**
-     * the session key use to persist cart conditions
+     * the session key use to persist basket conditions
      *
      * @var
      */
-    protected $sessionKeyCartConditions;
+    protected $sessionKeyBasketConditions;
 
     /**
      * Configuration to pass to ItemCollection
@@ -63,7 +63,7 @@ class Cart
     protected $config;
 
     /**
-     * This holds the currently added item id in cart for association
+     * This holds the currently added item id in basket for association
      * 
      * @var
      */
@@ -84,8 +84,8 @@ class Cart
         $this->session = $session;
         $this->instanceName = $instanceName;
         $this->sessionKey = $session_key;
-        $this->sessionKeyCartItems = $this->sessionKey . '_cart_items';
-        $this->sessionKeyCartConditions = $this->sessionKey . '_cart_conditions';
+        $this->sessionKeyBasketItems = $this->sessionKey . '_basket_items';
+        $this->sessionKeyBasketConditions = $this->sessionKey . '_basket_conditions';
         $this->config = $config;
         $this->currentItem = null;
         $this->fireEvent('created');
@@ -103,14 +103,14 @@ class Cart
         if (!$sessionKey) throw new \Exception("Session key is required.");
 
         $this->sessionKey = $sessionKey;
-        $this->sessionKeyCartItems = $this->sessionKey . '_cart_items';
-        $this->sessionKeyCartConditions = $this->sessionKey . '_cart_conditions';
+        $this->sessionKeyBasketItems = $this->sessionKey . '_basket_items';
+        $this->sessionKeyBasketConditions = $this->sessionKey . '_basket_conditions';
 
         return $this;
     }
 
     /**
-     * get instance name of the cart
+     * get instance name of the basket
      *
      * @return string
      */
@@ -120,7 +120,7 @@ class Cart
     }
 
     /**
-     * get an item on a cart by item ID
+     * get an item on a basket by item ID
      *
      * @param $itemId
      * @return mixed
@@ -142,14 +142,14 @@ class Cart
     }
 
     /**
-     * add item to the cart, it can be an array or multi dimensional array
+     * add item to the basket, it can be an array or multi dimensional array
      *
      * @param string|array $id
      * @param string $name
      * @param float $price
      * @param int $quantity
      * @param array $attributes
-     * @param CartCondition|array $conditions
+     * @param BasketCondition|array $conditions
      * @param string $associatedModel
      * @return $this
      * @throws InvalidItemException
@@ -204,11 +204,11 @@ class Cart
         // validate data
         $item = $this->validate($data);
 
-        // get the cart
-        $cart = $this->getContent();
+        // get the basket
+        $basket = $this->getContent();
 
-        // if the item is already in the cart we will just update it
-        if ($cart->has($id)) {
+        // if the item is already in the basket we will just update it
+        if ($basket->has($id)) {
 
             $this->update($id, $item);
         } else {
@@ -222,7 +222,7 @@ class Cart
     }
 
     /**
-     * update a cart
+     * update a basket
      *
      * @param $id
      * @param array $data
@@ -237,9 +237,9 @@ class Cart
             return false;
         }
 
-        $cart = $this->getContent();
+        $basket = $this->getContent();
 
-        $item = $cart->pull($id);
+        $item = $basket->pull($id);
 
         foreach ($data as $key => $value) {
             // if the key is currently "quantity" we will need to check if an arithmetic
@@ -269,29 +269,29 @@ class Cart
             }
         }
 
-        $cart->put($id, $item);
+        $basket->put($id, $item);
 
-        $this->save($cart);
+        $this->save($basket);
 
         $this->fireEvent('updated', $item);
         return true;
     }
 
     /**
-     * add condition on an existing item on the cart
+     * add condition on an existing item on the basket
      *
      * @param int|string $productId
-     * @param CartCondition $itemCondition
+     * @param BasketCondition $itemCondition
      * @return $this
      */
     public function addItemCondition($productId, $itemCondition)
     {
         if ($product = $this->get($productId)) {
-            $conditionInstance = "\\Darryldecode\\Cart\\CartCondition";
+            $conditionInstance = "\\ScottLsi\\Basket\\BasketCondition";
 
             if ($itemCondition instanceof $conditionInstance) {
                 // we need to copy first to a temporary variable to hold the conditions
-                // to avoid hitting this error "Indirect modification of overloaded element of Darryldecode\Cart\ItemCollection has no effect"
+                // to avoid hitting this error "Indirect modification of overloaded element of ScottLsi\Basket\ItemCollection has no effect"
                 // this is due to laravel Collection instance that implements Array Access
                 // // see link for more info: http://stackoverflow.com/questions/20053269/indirect-modification-of-overloaded-element-of-splfixedarray-has-no-effect
                 $itemConditionTempHolder = $product['conditions'];
@@ -312,29 +312,29 @@ class Cart
     }
 
     /**
-     * removes an item on cart by item ID
+     * removes an item on basket by item ID
      *
      * @param $id
      * @return bool
      */
     public function remove($id)
     {
-        $cart = $this->getContent();
+        $basket = $this->getContent();
 
         if ($this->fireEvent('removing', $id) === false) {
             return false;
         }
 
-        $cart->forget($id);
+        $basket->forget($id);
 
-        $this->save($cart);
+        $this->save($basket);
 
         $this->fireEvent('removed', $id);
         return true;
     }
 
     /**
-     * clear cart
+     * clear basket
      * @return bool
      */
     public function clear()
@@ -344,7 +344,7 @@ class Cart
         }
 
         $this->session->put(
-            $this->sessionKeyCartItems,
+            $this->sessionKeyBasketItems,
             array()
         );
 
@@ -353,9 +353,9 @@ class Cart
     }
 
     /**
-     * add a condition on the cart
+     * add a condition on the basket
      *
-     * @param CartCondition|array $condition
+     * @param BasketCondition|array $condition
      * @return $this
      * @throws InvalidConditionException
      */
@@ -369,7 +369,7 @@ class Cart
             return $this;
         }
 
-        if (!$condition instanceof CartCondition) throw new InvalidConditionException('Argument 1 must be an instance of \'Darryldecode\Cart\CartCondition\'');
+        if (!$condition instanceof BasketCondition) throw new InvalidConditionException('Argument 1 must be an instance of \'ScottLsi\Basket\BasketCondition\'');
 
         $conditions = $this->getConditions();
 
@@ -391,20 +391,20 @@ class Cart
     }
 
     /**
-     * get conditions applied on the cart
+     * get conditions applied on the basket
      *
-     * @return CartConditionCollection
+     * @return BasketConditionCollection
      */
     public function getConditions()
     {
-        return new CartConditionCollection($this->session->get($this->sessionKeyCartConditions));
+        return new BasketConditionCollection($this->session->get($this->sessionKeyBasketConditions));
     }
 
     /**
-     * get condition applied on the cart by its name
+     * get condition applied on the basket by its name
      *
      * @param $conditionName
-     * @return CartCondition
+     * @return BasketCondition
      */
     public function getCondition($conditionName)
     {
@@ -413,15 +413,15 @@ class Cart
 
     /**
      * Get all the condition filtered by Type
-     * Please Note that this will only return condition added on cart bases, not those conditions added
+     * Please Note that this will only return condition added on basket bases, not those conditions added
      * specifically on an per item bases
      *
      * @param $type
-     * @return CartConditionCollection
+     * @return BasketConditionCollection
      */
     public function getConditionsByType($type)
     {
-        return $this->getConditions()->filter(function (CartCondition $condition) use ($type) {
+        return $this->getConditions()->filter(function (BasketCondition $condition) use ($type) {
             return $condition->getType() == $type;
         });
     }
@@ -429,7 +429,7 @@ class Cart
 
     /**
      * Remove all the condition with the $type specified
-     * Please Note that this will only remove condition added on cart bases, not those conditions added
+     * Please Note that this will only remove condition added on basket bases, not those conditions added
      * specifically on an per item bases
      *
      * @param $type
@@ -438,21 +438,21 @@ class Cart
     public function removeConditionsByType($type)
     {
         $this->getConditionsByType($type)->each(function ($condition) {
-            $this->removeCartCondition($condition->getName());
+            $this->removeBasketCondition($condition->getName());
         });
     }
 
 
     /**
-     * removes a condition on a cart by condition name,
-     * this can only remove conditions that are added on cart bases not conditions that are added on an item/product.
+     * removes a condition on a basket by condition name,
+     * this can only remove conditions that are added on basket bases not conditions that are added on an item/product.
      * If you wish to remove a condition that has been added for a specific item/product, you may
      * use the removeItemCondition(itemId, conditionName) method instead.
      *
      * @param $conditionName
      * @return void
      */
-    public function removeCartCondition($conditionName)
+    public function removeBasketCondition($conditionName)
     {
         $conditions = $this->getConditions();
 
@@ -462,7 +462,7 @@ class Cart
     }
 
     /**
-     * remove a condition that has been applied on an item that is already on the cart
+     * remove a condition that has been applied on an item that is already on the basket
      *
      * @param $itemId
      * @param $conditionName
@@ -502,7 +502,7 @@ class Cart
             // on the given condition name the user wants to remove, if so,
             // lets just make $item['conditions'] an empty array as there's just 1 condition on it anyway
             else {
-                $conditionInstance = "Darryldecode\\Cart\\CartCondition";
+                $conditionInstance = "ScottLsi\\Basket\\BasketCondition";
 
                 if ($item['conditions'] instanceof $conditionInstance) {
                     if ($tempConditionsHolder->getName() == $conditionName) {
@@ -520,7 +520,7 @@ class Cart
     }
 
     /**
-     * remove all conditions that has been applied on an item that is already on the cart
+     * remove all conditions that has been applied on an item that is already on the basket
      *
      * @param $itemId
      * @return bool
@@ -539,30 +539,30 @@ class Cart
     }
 
     /**
-     * clears all conditions on a cart,
+     * clears all conditions on a basket,
      * this does not remove conditions that has been added specifically to an item/product.
      * If you wish to remove a specific condition to a product, you may use the method: removeItemCondition($itemId, $conditionName)
      *
      * @return void
      */
-    public function clearCartConditions()
+    public function clearBasketConditions()
     {
         $this->session->put(
-            $this->sessionKeyCartConditions,
+            $this->sessionKeyBasketConditions,
             array()
         );
     }
 
     /**
-     * get cart sub total without conditions
+     * get basket sub total without conditions
      * @param bool $formatted
      * @return float
      */
     public function getSubTotalWithoutConditions($formatted = true)
     {
-        $cart = $this->getContent();
+        $basket = $this->getContent();
 
-        $sum = $cart->sum(function ($item) {
+        $sum = $basket->sum(function ($item) {
             return $item->getPriceSum();
         });
 
@@ -570,15 +570,15 @@ class Cart
     }
 
     /**
-     * get cart sub total
+     * get basket sub total
      * @param bool $formatted
      * @return float
      */
     public function getSubTotal($formatted = true)
     {
-        $cart = $this->getContent();
+        $basket = $this->getContent();
 
-        $sum = $cart->sum(function (ItemCollection $item) {
+        $sum = $basket->sum(function (ItemCollection $item) {
             return $item->getPriceSumWithConditions(false);
         });
 
@@ -586,7 +586,7 @@ class Cart
         // on the subtotal and apply it here before returning the subtotal
         $conditions = $this
             ->getConditions()
-            ->filter(function (CartCondition $cond) {
+            ->filter(function (BasketCondition $cond) {
                 return $cond->getTarget() === 'subtotal';
             });
 
@@ -597,7 +597,7 @@ class Cart
         $newTotal = 0.00;
         $process = 0;
 
-        $conditions->each(function (CartCondition $cond) use ($sum, &$newTotal, &$process) {
+        $conditions->each(function (BasketCondition $cond) use ($sum, &$newTotal, &$process) {
 
             // if this is the first iteration, the toBeCalculated
             // should be the sum as initial point of value.
@@ -626,7 +626,7 @@ class Cart
 
         $conditions = $this
             ->getConditions()
-            ->filter(function (CartCondition $cond) {
+            ->filter(function (BasketCondition $cond) {
                 return $cond->getTarget() === 'total';
             });
 
@@ -636,7 +636,7 @@ class Cart
         }
 
         $conditions
-            ->each(function (CartCondition $cond) use ($subTotal, &$newTotal, &$process) {
+            ->each(function (BasketCondition $cond) use ($subTotal, &$newTotal, &$process) {
                 $toBeCalculated = ($process > 0) ? $newTotal : $subTotal;
 
                 $newTotal = $cond->applyCondition($toBeCalculated);
@@ -648,7 +648,7 @@ class Cart
     }
 
     /**
-     * get total quantity of items in the cart
+     * get total quantity of items in the basket
      *
      * @return int
      */
@@ -666,19 +666,19 @@ class Cart
     }
 
     /**
-     * get the cart
+     * get the basket
      *
-     * @return CartCollection
+     * @return BasketCollection
      */
     public function getContent()
     {
-        return (new CartCollection($this->session->get($this->sessionKeyCartItems)))->reject(function($item) {
+        return (new BasketCollection($this->session->get($this->sessionKeyBasketItems)))->reject(function($item) {
             return ! ($item instanceof ItemCollection);
         });
     }
 
     /**
-     * check if cart is empty
+     * check if basket is empty
      *
      * @return bool
      */
@@ -703,7 +703,7 @@ class Cart
             'name' => 'required',
         );
 
-        $validator = CartItemValidator::make($item, $rules);
+        $validator = BasketItemValidator::make($item, $rules);
 
         if ($validator->fails()) {
             throw new InvalidItemException($validator->messages()->first());
@@ -713,7 +713,7 @@ class Cart
     }
 
     /**
-     * add row to cart collection
+     * add row to basket collection
      *
      * @param $id
      * @param $item
@@ -725,11 +725,11 @@ class Cart
             return false;
         }
 
-        $cart = $this->getContent();
+        $basket = $this->getContent();
 
-        $cart->put($id, new ItemCollection($item, $this->config));
+        $basket->put($id, new ItemCollection($item, $this->config));
 
-        $this->save($cart);
+        $this->save($basket);
 
         $this->fireEvent('added', $item);
 
@@ -737,23 +737,23 @@ class Cart
     }
 
     /**
-     * save the cart
+     * save the basket
      *
-     * @param $cart CartCollection
+     * @param $basket BasketCollection
      */
-    protected function save($cart)
+    protected function save($basket)
     {
-        $this->session->put($this->sessionKeyCartItems, $cart);
+        $this->session->put($this->sessionKeyBasketItems, $basket);
     }
 
     /**
-     * save the cart conditions
+     * save the basket conditions
      *
      * @param $conditions
      */
     protected function saveConditions($conditions)
     {
-        $this->session->put($this->sessionKeyCartConditions, $conditions);
+        $this->session->put($this->sessionKeyBasketConditions, $conditions);
     }
 
     /**
@@ -770,7 +770,7 @@ class Cart
             return count($item['conditions']) > 0;
         }
 
-        $conditionInstance = "Darryldecode\\Cart\\CartCondition";
+        $conditionInstance = "ScottLsi\\Basket\\BasketCondition";
 
         if ($item['conditions'] instanceof $conditionInstance) return true;
 
@@ -778,7 +778,7 @@ class Cart
     }
 
     /**
-     * update a cart item quantity relative to its current quantity
+     * update a basket item quantity relative to its current quantity
      *
      * @param $item
      * @param $key
@@ -805,7 +805,7 @@ class Cart
     }
 
     /**
-     * update cart item quantity not relative to its current quantity value
+     * update basket item quantity not relative to its current quantity value
      *
      * @param $item
      * @param $key
@@ -853,7 +853,7 @@ class Cart
     }
 
     /**
-     * Associate the cart item with the given id with the given model.
+     * Associate the basket item with the given id with the given model.
      *
      * @param string $id
      * @param mixed  $model
@@ -866,15 +866,15 @@ class Cart
             throw new UnknownModelException("The supplied model {$model} does not exist.");
         }
 
-        $cart = $this->getContent();
+        $basket = $this->getContent();
 
-        $item = $cart->pull($this->currentItemId);
+        $item = $basket->pull($this->currentItemId);
 
         $item['associatedModel'] = $model;
 
-        $cart->put($this->currentItemId, new ItemCollection($item, $this->config));
+        $basket->put($this->currentItemId, new ItemCollection($item, $this->config));
 
-        $this->save($cart);
+        $this->save($basket);
 
         return $this;
     }

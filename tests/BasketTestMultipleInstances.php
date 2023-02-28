@@ -6,29 +6,29 @@
  * Time: 1:45 PM
  */
 
-use Darryldecode\Cart\Cart;
+use ScottLsi\Basket\Basket;
 use Mockery as m;
 
 require_once __DIR__.'/helpers/SessionMock.php';
 
-class CartTestMultipleInstances extends PHPUnit\Framework\TestCase {
+class BasketTestMultipleInstances extends PHPUnit\Framework\TestCase {
 
     /**
-     * @var Darryldecode\Cart\Cart
+     * @var ScottLsi\Basket\Basket
      */
-    protected $cart1;
+    protected $basket1;
 
     /**
-     * @var Darryldecode\Cart\Cart
+     * @var ScottLsi\Basket\Basket
      */
-    protected $cart2;
+    protected $basket2;
 
     public function setUp(): void
     {
         $events = m::mock('Illuminate\Contracts\Events\Dispatcher');
         $events->shouldReceive('dispatch');
 
-        $this->cart1 = new Cart(
+        $this->basket1 = new Basket(
             new SessionMock(),
             $events,
             'shopping',
@@ -36,7 +36,7 @@ class CartTestMultipleInstances extends PHPUnit\Framework\TestCase {
             require(__DIR__.'/helpers/configMock.php')
         );
 
-        $this->cart2 = new Cart(
+        $this->basket2 = new Basket(
             new SessionMock(),
             $events,
             'wishlist',
@@ -50,10 +50,10 @@ class CartTestMultipleInstances extends PHPUnit\Framework\TestCase {
         m::close();
     }
 
-    public function test_cart_multiple_instances()
+    public function test_basket_multiple_instances()
     {
-        // add 3 items on cart 1
-        $itemsForCart1 = array(
+        // add 3 items on basket 1
+        $itemsForBasket1 = array(
             array(
                 'id' => 456,
                 'name' => 'Sample Item 1',
@@ -77,14 +77,14 @@ class CartTestMultipleInstances extends PHPUnit\Framework\TestCase {
             ),
         );
 
-        $this->cart1->add($itemsForCart1);
+        $this->basket1->add($itemsForBasket1);
 
-        $this->assertFalse($this->cart1->isEmpty(), 'Cart should not be empty');
-        $this->assertCount(3, $this->cart1->getContent()->toArray(), 'Cart should have 3 items');
-        $this->assertEquals('shopping', $this->cart1->getInstanceName(), 'Cart 1 should have instance name of "shopping"');
+        $this->assertFalse($this->basket1->isEmpty(), 'Basket should not be empty');
+        $this->assertCount(3, $this->basket1->getContent()->toArray(), 'Basket should have 3 items');
+        $this->assertEquals('shopping', $this->basket1->getInstanceName(), 'Basket 1 should have instance name of "shopping"');
 
-        // add 1 item on cart 2
-        $itemsForCart2 = array(
+        // add 1 item on basket 2
+        $itemsForBasket2 = array(
             array(
                 'id' => 456,
                 'name' => 'Sample Item 1',
@@ -94,10 +94,10 @@ class CartTestMultipleInstances extends PHPUnit\Framework\TestCase {
             ),
         );
 
-        $this->cart2->add($itemsForCart2);
+        $this->basket2->add($itemsForBasket2);
 
-        $this->assertFalse($this->cart2->isEmpty(), 'Cart should not be empty');
-        $this->assertCount(1, $this->cart2->getContent()->toArray(), 'Cart should have 3 items');
-        $this->assertEquals('wishlist', $this->cart2->getInstanceName(), 'Cart 2 should have instance name of "wishlist"');
+        $this->assertFalse($this->basket2->isEmpty(), 'Basket should not be empty');
+        $this->assertCount(1, $this->basket2->getContent()->toArray(), 'Basket should have 3 items');
+        $this->assertEquals('wishlist', $this->basket2->getInstanceName(), 'Basket 2 should have instance name of "wishlist"');
     }
 }

@@ -1,4 +1,4 @@
-<?php namespace Darryldecode\Cart\Helpers;
+<?php namespace ScottLsi\Basket\Helpers;
 
 /**
  * Created by PhpStorm.

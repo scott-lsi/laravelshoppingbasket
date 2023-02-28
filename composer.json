@@ -1,7 +1,7 @@
 {
-    "name": "ultrono/laravelshoppingcart-1",
-    "description": "Laravel 5 and above Shopping cart",
-    "keywords": ["laravel", "shopping cart", "cart"],
+    "name": "scott-lsi/laravelshoppingbasket",
+    "description": "Laravel 5 and above Shopping basket",
+    "keywords": ["laravel", "shopping basket", "basket", "shopping basket", "basket"],
     "license": "MIT",
     "authors": [
         {
@@ -11,6 +11,10 @@
         {
             "name": "Rob Allport",
             "email": "rob@f9web.co.uk"
+        },
+        {
+            "name": "Scott Brown",
+            "email": "scott@scottbrown.me.uk"
         }
     ],
     "require": {
@@ -26,17 +30,17 @@
     },
     "autoload": {
         "psr-4": {
-            "Darryldecode\\": "src/Darryldecode"
+            "ScottLsi\\": "src/ScottLsi"
         }
     },
     "minimum-stability": "dev",
     "extra": {
         "laravel": {
             "providers": [
-                "Darryldecode\\Cart\\CartServiceProvider"
+                "ScottLsi\\Basket\\BasketServiceProvider"
             ],
             "aliases": {
-                "Cart": "Darryldecode\\Cart\\Facades\\CartFacade"
+                "Basket": "ScottLsi\\Basket\\Facades\\BasketFacade"
             }
         }
     }

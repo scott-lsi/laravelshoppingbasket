@@ -1,6 +1,6 @@
 <?php
 
-namespace Darryldecode\Cart\Exceptions;
+namespace ScottLsi\Basket\Exceptions;
 
 class UnknownModelException extends \Exception
 { }

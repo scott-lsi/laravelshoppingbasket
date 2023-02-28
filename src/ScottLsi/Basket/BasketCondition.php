@@ -1,7 +1,7 @@
-<?php namespace Darryldecode\Cart;
-use Darryldecode\Cart\Exceptions\InvalidConditionException;
-use Darryldecode\Cart\Helpers\Helpers;
-use Darryldecode\Cart\Validators\CartConditionValidator;
+<?php namespace ScottLsi\Basket;
+use ScottLsi\Basket\Exceptions\InvalidConditionException;
+use ScottLsi\Basket\Helpers\Helpers;
+use ScottLsi\Basket\Validators\BasketConditionValidator;
 
 /**
  * Created by PhpStorm.
@@ -10,7 +10,7 @@ use Darryldecode\Cart\Validators\CartConditionValidator;
  * Time: 9:02 PM
  */
 
-class CartCondition {
+class BasketCondition {
 
     /**
      * @var array
@@ -267,7 +267,7 @@ class CartCondition {
             'value' => 'required',
         );
 
-        $validator = CartConditionValidator::make($args, $rules);
+        $validator = BasketConditionValidator::make($args, $rules);
 
         if( $validator->fails() )
         {

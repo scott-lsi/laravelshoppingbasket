@@ -1,4 +1,4 @@
-<?php namespace Darryldecode\Cart;
+<?php namespace ScottLsi\Basket;
 
 /**
  * Created by PhpStorm.
@@ -7,7 +7,7 @@
  * Time: 11:03 AM
  */
 
-use Darryldecode\Cart\Helpers\Helpers;
+use ScottLsi\Basket\Helpers\Helpers;
 use Illuminate\Support\Collection;
 
 class ItemCollection extends Collection
@@ -77,7 +77,7 @@ class ItemCollection extends Collection
         if (is_array($this['conditions'])) {
             return count($this['conditions']) > 0;
         }
-        $conditionInstance = "Darryldecode\\Cart\\CartCondition";
+        $conditionInstance = "ScottLsi\\Basket\\BasketCondition";
         if ($this['conditions'] instanceof $conditionInstance) return true;
 
         return false;
